@@ -15,7 +15,18 @@ pipeline {
 
                 stage('Pruebas de SAST') {
                     steps {
-                        echo 'Ejecución de pruebas de SAST'
+                        script {
+                            // Inyecta SonarQube como variables de entorno
+                            withSonarQubeEnv('Sonar Local') {
+                                // Ejecuta el análisis
+                                sh 'sonar-scanner -Dsonar.projectKey=devops-webserver -Dsonar.sources=src'
+                            }
+
+                            // Espera el resultado del Quality Gate, sin abortar el pipeline
+                            timeout(time: 10, unit: 'MINUTES') {
+                                waitForQualityGate abortPipeline: false
+                            }
+                        }
                     }
                 }
 
