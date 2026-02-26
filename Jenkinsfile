@@ -22,10 +22,12 @@ pipeline {
                                 sh 'sonar-scanner -Dsonar.projectKey=devops-webserver -Dsonar.sources=src'
                             }
 
-                            // Espera el resultado del Quality Gate, sin abortar el pipeline
+                            // Temporalmente comentado para evitar timeout y pipeline gris
+                            /*
                             timeout(time: 10, unit: 'MINUTES') {
                                 waitForQualityGate abortPipeline: false
                             }
+                            */
                         }
                     }
                 }
