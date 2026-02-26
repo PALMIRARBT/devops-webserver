@@ -28,6 +28,24 @@ pipeline {
             }
         }
 
+        stage('Configurar archivo') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'Credentials_DevOps',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+                    sh '''
+                        echo "[credentials]" > credentials.ini
+                        echo "user=$USER" >> credentials.ini
+                        echo "password=$PASS" >> credentials.ini
+                    '''
+                }
+
+                archiveArtifacts artifacts: 'credentials.ini', fingerprint: true
+            }
+        }
+
         stage('Build') {
             steps {
                 echo 'Construyendo imagen Docker...'
