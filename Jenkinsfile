@@ -16,18 +16,9 @@ pipeline {
                 stage('Pruebas de SAST') {
                     steps {
                         script {
-                            // Inyecta SonarQube como variables de entorno
                             withSonarQubeEnv('Sonar Local') {
-                                // Ejecuta el análisis
                                 sh 'sonar-scanner -Dsonar.projectKey=devops-webserver -Dsonar.sources=src'
                             }
-
-                            // Temporalmente comentado para evitar timeout y pipeline gris
-                            /*
-                            timeout(time: 10, unit: 'MINUTES') {
-                                waitForQualityGate abortPipeline: false
-                            }
-                            */
                         }
                     }
                 }
@@ -63,6 +54,17 @@ pipeline {
             steps {
                 echo 'Construyendo imagen Docker...'
                 sh 'docker build -t devops_ws .'
+            }
+        }
+
+        stage('Despliegue del servidor') {
+            steps {
+                echo 'Deteniendo contenedor anterior si existe...'
+                sh 'docker stop devops_ws || true'
+                sh 'docker rm devops_ws || true'
+
+                echo 'Levantando nuevo contenedor...'
+                sh 'docker run -d -p 8090:8090 --name devops_ws devops_ws'
             }
         }
 
